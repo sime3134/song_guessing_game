@@ -7,8 +7,13 @@ import {
   Typography,
   Button,
   TextField,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { useState } from "react";
+import Lyrics from "./Lyrics";
+import getLyricsForTrackId from "../actions";
 
 export default function HomeView({ trackList, firstLyrics }) {
   const [gameState, setGameState] = useState("off");
@@ -18,23 +23,19 @@ export default function HomeView({ trackList, firstLyrics }) {
   const [scoreForCurrentSong, setScoreForCurrentSong] = useState(5);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [numOfLyricsState, setNumOfLyricsState] = useState(1);
-  const [error, setError] = useState("");
+  const [error, setError] = useState();
+  const [displayInstructions, setDisplayInstructions] = useState(false);
 
-  const getLyricsForTrackId = async (id) => {
-    const response = await fetch(
-      `https://api.musixmatch.com/ws/1.1/track.lyrics.get?apikey=e897c43680faf0f22debd33edab6ae34&track_id=${id}`,
-      {
-        method: "GET",
-      }
-    );
-
-    const lyrics = await response.json();
-    return lyrics.message.body.lyrics.lyrics_body;
+  const addLyrics = () => {
+    if (numOfLyricsState < 5) {
+      setNumOfLyricsState(numOfLyricsState + 1);
+      setScoreForCurrentSong(scoreForCurrentSong - 1);
+    }
   };
 
-  const getNewLyrics = async () => {
+  const setNewLyrics = async () => {
     const newLyrics = await getLyricsForTrackId(
-      trackList[currentTrackIndex].track.track_id
+      trackList[currentTrackIndex + 1].track.track_id
     );
     setCurrentLyrics(newLyrics.split("\n"));
   };
@@ -44,9 +45,10 @@ export default function HomeView({ trackList, firstLyrics }) {
     const cleanedTitleInput = trimmedTitleInput.split("(")[0];
 
     if (cleanedTitleInput === "") {
-      setError("Please enter a title");
+      setError("Please enter a song title");
       return;
     }
+    setError("");
 
     const trackTitle = trackList[currentTrackIndex].track.track_name;
     const trimmedTrackTitle = trackTitle.replace(/\s/g, "");
@@ -58,8 +60,23 @@ export default function HomeView({ trackList, firstLyrics }) {
       setScoreForCurrentSong(5);
       setTitleInput("");
 
-      const newLyrics = await getNewLyrics();
-      setCurrentLyrics(newLyrics); //get new song and lyrics
+      await setNewLyrics();
+      setNumOfLyricsState(1);
+    }
+  };
+
+  const skipSong = async () => {
+    if (currentTrackIndex === trackList.length - 1) {
+      if (window) {
+        window.location.reload();
+      }
+    } else {
+      setError(null);
+      setCurrentTrackIndex(currentTrackIndex + 1);
+      setScoreForCurrentSong(5);
+      setTitleInput("");
+
+      await setNewLyrics();
       setNumOfLyricsState(1);
     }
   };
@@ -71,24 +88,58 @@ export default function HomeView({ trackList, firstLyrics }) {
       justifyContent="center"
       alignContent="center"
     >
-      <Box sx={{ maxWidth: { xs: "95%", sm: "50%" } }}>
-        <Typography textAlign="center" variant="h2">
-          Lyrics Game
+      <Box
+        sx={{
+          maxWidth: { xs: "95%", sm: "40%" },
+          minWidth: { xs: "95%", sm: "40%" },
+        }}
+      >
+        <Typography textAlign="center" variant="h2" mb={2} mt={2}>
+          Guess the Song
         </Typography>
-        <Alert icon={<MusicNote />}>
-          Welcome to the amazing Lyrics Game! 🤕🤕 Take your lyrics knowledge to
-          the next level!!! Sooo the game start by displaying some Lyrics! :3
-          You have to correctly guess the song title by reading the lyrics! So
-          gather your friends and Family and please have fun and remember that
-          its just a game! 🤪 😍 🙏 😜 🥵 😘 🫡
-        </Alert>
+        {gameState === "on" && (
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <Button
+              variant="text"
+              onClick={() => setDisplayInstructions(!displayInstructions)}
+            >
+              {displayInstructions ? "Hide Instructions" : "Show Instructions"}
+            </Button>
+          </Box>
+        )}
+        {(gameState === "off" || displayInstructions) && (
+          <Alert icon={<MusicNote />} sx={{ mb: 2, fontSize: "10px" }}>
+            How to Play:{" "}
+            <List component="nav" aria-label="game instructions">
+              <ListItem>
+                <ListItemText primary="1. Start the Game: Click 'Start Game' to display the first set of lyrics from a song." />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="2. Guess the Song: Enter your guess for the song title based on the lyrics shown in the text field." />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="3. Submit Your Answer: Hit 'Submit' to check if your guess is correct. You only get one chance to guess each song correctly. Earn up to 5 points for a correct answer." />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="4. Need a Hint? Click 'Add More Lyrics' to reveal additional lyrics. Each hint reduces the potential score by 1 point, down to a minimum of 1 point." />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="5. Skip: If you decide not to guess, click 'Skip' to move to the next song without earning points." />
+              </ListItem>
+            </List>
+          </Alert>
+        )}
 
-        <Typography mt={1} variant="body1">
-          Current track: {currentTrackIndex + 1} / {trackList.length}
-        </Typography>
-        <Typography mt={1} variant="body1">
-          Total score: {totalScore}
-        </Typography>
+        {gameState === "on" && (
+          <Alert icon={false} severity="info">
+            <Typography mt={1} variant="body1">
+              Current track: {currentTrackIndex + 1} / {trackList.length}
+            </Typography>
+            <Typography mt={1} variant="body1">
+              Total score: {totalScore}
+            </Typography>
+          </Alert>
+        )}
 
         {gameState === "off" ? (
           <Box display="flex" justifyContent="center" alignItems="center">
@@ -100,6 +151,7 @@ export default function HomeView({ trackList, firstLyrics }) {
               size="large"
               sx={{
                 mt: 1,
+                mb: 2,
               }}
             >
               Start Game
@@ -120,9 +172,12 @@ export default function HomeView({ trackList, firstLyrics }) {
                 variant="filled"
                 value={titleInput}
                 onChange={(e) => setTitleInput(e.target.value)}
+                error={Boolean(error)}
+                helperText={error}
               />
               <Box>
                 <Button
+                  onClick={skipSong}
                   sx={{ width: "fit-content", mt: 1, mr: 1 }}
                   variant="outlined"
                 >
@@ -137,7 +192,11 @@ export default function HomeView({ trackList, firstLyrics }) {
                 </Button>
               </Box>
             </Box>
-            {/* Display lyrics here*/}
+            <Lyrics
+              lyrics={currentLyrics.filter((lyric) => lyric !== "")}
+              numOfLyricsState={numOfLyricsState}
+              addLyrics={addLyrics}
+            />
           </Box>
         )}
       </Box>
