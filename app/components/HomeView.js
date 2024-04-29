@@ -196,11 +196,13 @@ export default function HomeView({ trackList, firstLyrics, currentPage }) {
                 display="flex"
                 flexDirection="column"
                 alignItems="flex-end"
+                component="form"
+                action={checkAnswer}
               >
                 <TextField
                   fullWidth={true}
-                  id="filled-basic"
-                  label="Your Guess"
+                  id="guess-input"
+                  label="Your guess"
                   variant="filled"
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
@@ -216,9 +218,9 @@ export default function HomeView({ trackList, firstLyrics, currentPage }) {
                     Skip
                   </Button>
                   <Button
-                    onClick={checkAnswer}
                     sx={{ width: "fit-content", mt: 1 }}
                     variant="contained"
+                    type="submit"
                   >
                     Submit (+{scoreForCurrentSong} points)
                   </Button>
