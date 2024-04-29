@@ -21,7 +21,7 @@ TODO
 Start by cloning the repository to your local machine.
 
 ```bash
-git clone https://your-repository-url-here.com
+git clone https://github.com/sime3134/api-project
 ```
 
 ## Prerequisites
