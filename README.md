@@ -14,7 +14,7 @@ When the game is running:
 
 ## Notes about Framework Choice
 
-TODO
+React was chosen over Angular and Vue for this project for a number of reasons. React is the most popular library of the three and has both a large community. Since the community is large, it's easier to find solutions when problems arise and countless guides on how to do certain things. Vue has a smaller community and could be more difficult to find solutions for. React also seemed like the easiest to work with as it is just a library and not a full framework like Angular. This means that it's easier to get started with React and it's easier to understand how it works. Some of the members of the group had previous experience with React which made it easier to get started with the project as well.
 
 ## Getting Started
 
