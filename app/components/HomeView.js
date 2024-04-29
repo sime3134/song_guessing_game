@@ -113,8 +113,8 @@ export default function HomeView({ trackList, firstLyrics, currentPage }) {
       >
         <Box
           sx={{
-            maxWidth: { xs: "95%", sm: "40%" },
-            minWidth: { xs: "95%", sm: "40%" },
+            maxWidth: { xs: "95%", md: "70%", lg: "40%" },
+            minWidth: { xs: "95%", md: "70%", lg: "40%" },
           }}
         >
           <Typography textAlign="center" variant="h2" mb={2} mt={2}>
