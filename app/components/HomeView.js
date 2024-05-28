@@ -12,7 +12,7 @@ import {
   ListItemText,
   Snackbar,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Lyrics from "./Lyrics";
 import getLyricsForTrackId from "../actions";
 
@@ -97,11 +97,22 @@ export default function HomeView({ trackList, firstLyrics, currentPage }) {
       setCurrentTrackIndex(currentTrackIndex + 1);
       setScoreForCurrentSong(5);
       setTitleInput("");
+      console.log(
+        "currentTrackTitle: ",
+        trackList[currentTrackIndex].track.track_name
+      );
 
       await setNewLyrics();
       setNumOfLyricsState(1);
     }
   };
+
+  useEffect(() => {
+    console.log(
+      "currentTrackTitle: ",
+      trackList[currentTrackIndex].track.track_name
+    );
+  }, [currentTrackIndex, trackList]);
 
   return (
     <>
@@ -215,7 +226,7 @@ export default function HomeView({ trackList, firstLyrics, currentPage }) {
                     sx={{ width: "fit-content", mt: 1, mr: 1 }}
                     variant="outlined"
                   >
-                    Skip
+                    Skip (0 points)
                   </Button>
                   <Button
                     sx={{ width: "fit-content", mt: 1 }}
